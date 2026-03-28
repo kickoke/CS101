@@ -1,0 +1,16 @@
+[build]
+  # The directory that contains the deploy-ready HTML/CSS/JS
+  # Use "." if your files are in the root, or "dist" / "public" if they are in a subfolder.
+  publish = "."
+
+[dev]
+  # This helps when running 'netlify dev' locally
+  port = 8888
+  publish = "."
+
+[[redirects]]
+  # This is a 'Single Page App' rule. It's optional for simple sites, 
+  # but prevents 404s if you use client-side routing.
+  from = "/*"
+  to = "/index.html"
+  status = 200
