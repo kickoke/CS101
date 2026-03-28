@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS101: Interactive CS Reference</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fafaf9; /* stone-50 */
+            color: #1c1917; /* stone-900 */
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f5f5f4; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d6d3d1; 
+            border-radius: 4px;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 350px;
+            min-height: 250px;
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item.active {
+            background-color: #e7e5e4; /* stone-200 */
+            font-weight: 600;
+            border-left: 4px solid #0369a1; /* sky-700 */
+            color: #0c4a6e;
+        }
+        
+        pre {
+            background-color: #1c1917; /* stone-900 */
+            color: #f5f5f4; /* stone-50 */
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            border: 1px solid #44403c;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-width: 1px;
+        }
+        .bg-good { background-color: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+        .bg-fair { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
+        .bg-poor { background-color: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .clickable-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #bae6fd;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden antialiased">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-72 bg-stone-100 border-r border-stone-200 flex flex-col h-full z-10 hidden lg:flex shrink-0">
+        <div class="p-6 border-b border-stone-200 cursor-pointer" onclick="goHome()">
+            <h1 class="text-2xl font-bold text-stone-800 tracking-tight">AlgoStruct</h1>
+            <p class="text-xs text-stone-500 mt-1 font-medium uppercase tracking-tighter">Computer Science Reference</p>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-6" id="nav-container">
+            <!-- Navigation items injected via JS -->
+        </div>
+    </aside>
+
+    <!-- Mobile Header -->
+    <div class="lg:hidden fixed top-0 w-full bg-stone-100 border-b border-stone-200 p-4 flex justify-between items-center z-20">
+        <h1 class="text-xl font-bold text-stone-800 cursor-pointer" onclick="goHome()">AlgoStruct</h1>
+        <button id="mobile-menu-btn" class="p-2 bg-stone-200 rounded text-stone-700 font-bold">Menu</button>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="hidden fixed inset-0 bg-stone-100 z-30 pt-16 overflow-y-auto px-4 pb-4">
+        <div id="mobile-nav-container" class="space-y-6"></div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 h-full overflow-y-auto bg-white pt-16 lg:pt-0" id="main-scroll-area">
+        <div class="max-w-5xl mx-auto p-6 md:p-10 lg:p-12">
+            
+            <!-- Welcome View -->
+            <div id="intro-view" class="block animate-fade-in">
+                <div class="bg-stone-50 border border-stone-200 rounded-2xl p-10 text-center mb-10 shadow-sm">
+                    <div class="text-6xl mb-6">🎓</div>
+                    <h2 class="text-4xl font-extrabold text-stone-900 mb-4 tracking-tight">CS Algorithm & Structure Lab</h2>
+                    <p class="text-stone-600 max-w-2xl mx-auto text-lg leading-relaxed">
+                        An interactive guide designed for students to explore the relationship between efficient logic and structured data.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="p-8 border border-stone-200 rounded-2xl bg-white hover:shadow-md transition-all cursor-pointer group" onclick="scrollToNav('Sorting')">
+                        <h3 class="font-bold text-xl mb-3 flex items-center gap-2">
+                            <span class="p-2 bg-sky-100 text-sky-700 rounded-lg group-hover:bg-sky-600 group-hover:text-white transition-colors">⚙️</span> Algorithms
+                        </h3>
+                        <p class="text-stone-500 mb-4">Master procedures for Sorting, Searching, and Graph Traversal. View performance curves and Python logic.</p>
+                        <p class="text-sm font-semibold text-sky-700">Explore Algorithms &rarr;</p>
+                    </div>
+                    <div class="p-8 border border-stone-200 rounded-2xl bg-white hover:shadow-md transition-all cursor-pointer group" onclick="scrollToNav('Data Structures')">
+                        <h3 class="font-bold text-xl mb-3 flex items-center gap-2">
+                            <span class="p-2 bg-emerald-100 text-emerald-700 rounded-lg group-hover:bg-emerald-600 group-hover:text-white transition-colors">📦</span> Data Structures
+                        </h3>
+                        <p class="text-stone-500 mb-4">Learn how data is organized in memory. Compare operation speeds for Arrays, Heaps, and Trees.</p>
+                        <p class="text-sm font-semibold text-emerald-700">Explore Structures &rarr;</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Algorithm Details View -->
+            <div id="algorithm-view" class="hidden animate-fade-in">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-8 gap-4">
+                    <div>
+                        <div class="inline-block px-3 py-1 bg-stone-100 text-stone-600 text-xs font-bold uppercase tracking-wider rounded-full mb-3">Algorithm</div>
+                        <h2 class="text-5xl font-extrabold text-stone-900 tracking-tight" id="algo-name">Algorithm Name</h2>
+                    </div>
+                    <a id="algo-video" href="#" target="_blank" class="inline-flex items-center gap-2 bg-sky-700 hover:bg-sky-800 text-white px-6 py-3 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg shadow-sky-100">
+                        Watch Lecture
+                    </a>
+                </div>
+
+                <p id="algo-desc" class="text-stone-600 text-xl mb-10 leading-relaxed"></p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="bg-stone-50 border border-stone-200 rounded-2xl p-6">
+                        <span class="text-xs text-stone-400 font-bold uppercase tracking-widest block mb-4">Time Complexity</span>
+                        <p class="text-3xl font-bold code-font text-emerald-700" id="algo-time-avg"></p>
+                        <p class="text-sm text-stone-500 mt-2">Average Case</p>
+                    </div>
+                    <div class="bg-stone-50 border border-stone-200 rounded-2xl p-6">
+                        <span class="text-xs text-stone-400 font-bold uppercase tracking-widest block mb-4">Space Complexity</span>
+                        <p class="text-3xl font-bold code-font text-amber-700" id="algo-space"></p>
+                        <p class="text-sm text-stone-500 mt-2">Auxiliary Memory</p>
+                    </div>
+                    <div class="bg-sky-50 border border-sky-100 rounded-2xl p-6 cursor-pointer clickable-card transition-all" id="algo-ds-link-btn">
+                        <span class="text-xs text-sky-500 font-bold uppercase tracking-widest block mb-4">Primary Data Structure</span>
+                        <p class="text-2xl font-bold text-sky-800 flex items-center justify-between gap-2">
+                            <span id="algo-ds"></span>
+                            <span class="text-sky-400 text-xl">→</span>
+                        </p>
+                        <p class="text-xs text-sky-600 mt-2 font-medium uppercase tracking-tighter">View Structure Specs</p>
+                    </div>
+                </div>
+
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold text-stone-800 mb-6 flex items-center gap-3">
+                        <span class="w-8 h-1 bg-sky-600 rounded"></span> Performance Visualization
+                    </h3>
+                    <div class="chart-container bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
+                        <canvas id="complexityChart"></canvas>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold text-stone-800 mb-6 flex items-center gap-3">
+                        <span class="w-8 h-1 bg-stone-800 rounded"></span> Implementation (Python)
+                    </h3>
+                    <pre><code id="algo-code" class="text-sm code-font block leading-relaxed whitespace-pre-wrap"></code></pre>
+                </div>
+            </div>
+
+            <!-- Data Structure Details View -->
+            <div id="ds-view" class="hidden animate-fade-in">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-8 gap-4">
+                    <div>
+                        <div class="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-wider rounded-full mb-3">Data Structure</div>
+                        <h2 class="text-5xl font-extrabold text-stone-900 tracking-tight" id="ds-name">Structure Name</h2>
+                    </div>
+                    <a id="ds-video" href="#" target="_blank" class="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg shadow-emerald-100">
+                        Watch Lecture
+                    </a>
+                </div>
+
+                <p id="ds-desc" class="text-stone-600 text-xl mb-10 leading-relaxed"></p>
+
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold text-stone-800 mb-6 flex items-center gap-3">
+                        <span class="w-8 h-1 bg-emerald-600 rounded"></span> Efficiency Matrix
+                    </h3>
+                    <div class="overflow-x-auto rounded-2xl border border-stone-200 bg-white">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-stone-50 border-b border-stone-200">
+                                <tr>
+                                    <th class="p-4 text-xs font-bold text-stone-400 uppercase tracking-widest">Operation</th>
+                                    <th class="p-4 text-xs font-bold text-stone-400 uppercase tracking-widest">Average Case</th>
+                                    <th class="p-4 text-xs font-bold text-stone-400 uppercase tracking-widest">Worst Case</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ds-complexity-table">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold text-stone-800 mb-6 flex items-center gap-3">
+                        <span class="w-8 h-1 bg-emerald-700 rounded"></span> Implementation (Python)
+                    </h3>
+                    <pre><code id="ds-code" class="text-sm code-font block leading-relaxed whitespace-pre-wrap"></code></pre>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 1. DATA REPOSITORY ---
+        const algorithms = [
+            { id: "selection-sort", category: "Sorting", name: "Selection Sort", desc: "A comparison-based sort that builds the final sorted array one element at a time by repeatedly finding the minimum element from the unsorted part.", timeClass: "O(n^2)", timeAvg: "O(n²)", space: "O(1)", ds: "Array", dsId: "array", video: "https://www.youtube.com/watch?v=g-PGLbMth_g", code: `def selection_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        min_idx = i\n        for j in range(i+1, n):\n            if arr[min_idx] > arr[j]:\n                min_idx = j\n        arr[i], arr[min_idx] = arr[min_idx], arr[i]\n    return arr` },
+            { id: "bubble-sort", category: "Sorting", name: "Bubble Sort", desc: "A simple algorithm that repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order.", timeClass: "O(n^2)", timeAvg: "O(n²)", space: "O(1)", ds: "Array", dsId: "array", video: "https://www.youtube.com/watch?v=xli_FI7CuzA", code: `def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        swapped = False\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j]\n                swapped = True\n        if not swapped: break\n    return arr` },
+            { id: "merge-sort", category: "Sorting", name: "Merge Sort", desc: "A divide-and-conquer algorithm that divides the array into halves, sorts them recursively, and then merges the sorted halves.", timeClass: "O(n log n)", timeAvg: "O(n log n)", space: "O(n)", ds: "Array", dsId: "array", video: "https://www.youtube.com/watch?v=4VqmGXwpLqc", code: `def merge_sort(arr):\n    if len(arr) > 1:\n        mid = len(arr) // 2\n        L, R = arr[:mid], arr[mid:]\n        merge_sort(L)\n        merge_sort(R)\n        # Merge logic...` },
+            { id: "quick-sort", category: "Sorting", name: "Quick Sort", desc: "Picks a 'pivot' element and partitions the array around it. It is highly efficient and widely used in practice.", timeClass: "O(n log n)", timeAvg: "O(n log n)", space: "O(log n)", ds: "Array", dsId: "array", video: "https://www.youtube.com/watch?v=Hoixgm4-P4M", code: `def quick_sort(arr):\n    if len(arr) <= 1: return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    mid = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quick_sort(left) + mid + quick_sort(right)` },
+            { id: "binary-search", category: "Searching", name: "Binary Search", desc: "Efficiently finds an element in a sorted list by repeatedly halving the search space.", timeClass: "O(log n)", timeAvg: "O(log n)", space: "O(1)", ds: "Array", dsId: "array", video: "https://www.youtube.com/watch?v=P3YcBGznRv0", code: `def binary_search(arr, target):\n    low, high = 0, len(arr) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if arr[mid] == target: return mid\n        elif arr[mid] < target: low = mid + 1\n        else: high = mid - 1\n    return -1` },
+            { id: "dfs", category: "Graphs", name: "Depth-First Search", desc: "Traverses as deep as possible into a branch before backtracking.", timeClass: "O(n)", timeAvg: "O(V + E)", space: "O(V)", ds: "Graph", dsId: "graph", video: "https://www.youtube.com/watch?v=7fujbpJ0LB4", code: `def dfs(graph, start, visited=None):\n    if visited is None: visited = set()\n    visited.add(start)\n    for nxt in graph[start]:\n        if nxt not in visited: dfs(graph, nxt, visited)\n    return visited` },
+            { id: "bfs", category: "Graphs", name: "Breadth-First Search", desc: "Traverses layer-by-layer. Ideal for finding the shortest path in an unweighted graph.", timeClass: "O(n)", timeAvg: "O(V + E)", space: "O(V)", ds: "Graph", dsId: "graph", video: "https://www.youtube.com/watch?v=oDqjPvD54Ss", code: `from collections import deque\ndef bfs(graph, root):\n    visited, queue = {root}, deque([root])\n    while queue:\n        vertex = queue.popleft()\n        for neighbour in graph[vertex]:\n            if neighbour not in visited:\n                visited.add(neighbour)\n                queue.append(neighbour)` }
+        ];
+
+        const structures = [
+            { id: "array", name: "Array", desc: "A collection of items stored at contiguous memory locations. It is the most fundamental data structure used by almost all sorting algorithms.", video: "https://www.youtube.com/watch?v=pmf8w9ZfNqU", ops: { access: ["O(1)", "good"], search: ["O(n)", "poor"], insert: ["O(n)", "poor"], delete: ["O(n)", "poor"] }, code: `# Standard Python lists act as dynamic arrays\narr = [1, 2, 3]\narr.append(4) # O(1) amortized` },
+            { id: "linked-list", name: "Linked List", desc: "Nodes pointing to the next node. Excellent for insertions and deletions when the position is already known.", video: "https://www.youtube.com/watch?v=WwfhLC16bis", ops: { access: ["O(n)", "poor"], search: ["O(n)", "poor"], insert: ["O(1)", "good"], delete: ["O(1)", "good"] }, code: `class Node:\n    def __init__(self, data):\n        self.data = data\n        self.next = None` },
+            { id: "heap", name: "Binary Heap", desc: "A complete binary tree that satisfies the heap property. Used to implement priority queues efficiently.", video: "https://www.youtube.com/watch?v=t0Cq6tVNRBA", ops: { access: ["O(1)", "good"], search: ["O(n)", "poor"], insert: ["O(log n)", "fair"], delete: ["O(log n)", "fair"] }, code: `import heapq\nq = []\nheapq.heappush(q, 10)` },
+            { id: "graph", name: "Graph", desc: "A collection of vertices connected by edges. Can represent anything from social networks to internet routing.", video: "https://www.youtube.com/watch?v=pcKY4hjDrxk", ops: { access: ["N/A", "poor"], search: ["O(V+E)", "fair"], insert: ["O(1)", "good"], delete: ["O(E)", "fair"] }, code: `adj_list = {'A': ['B', 'C']}` },
+            { id: "hash-table", name: "Hash Table", desc: "Uses a hash function to map keys to values. Provides O(1) average-case lookups, making it extremely powerful.", video: "https://www.youtube.com/watch?v=knV86IfRBJk", ops: { access: ["N/A", "good"], search: ["O(1)", "good"], insert: ["O(1)", "good"], delete: ["O(1)", "good"] }, code: `dictionary = {"key": "value"}\nprint(dictionary["key"])` }
+        ];
+
+        // --- 2. GLOBAL STATE & CHART ---
+        let complexityChart = null;
+        const xValues = Array.from({length: 40}, (_, i) => i + 1);
+        const bigOCurves = {
+            "O(1)": { label: "O(1)", data: xValues.map(() => 10), color: "#10b981" },
+            "O(log n)": { label: "O(log n)", data: xValues.map(n => 10 * Math.log2(n)), color: "#0ea5e9" },
+            "O(n)": { label: "O(n)", data: xValues.map(n => 2.5 * n), color: "#f59e0b" },
+            "O(n log n)": { label: "O(n log n)", data: xValues.map(n => n * Math.log2(n)), color: "#f97316" },
+            "O(n^2)": { label: "O(n²)", data: xValues.map(n => (n*n) / 5), color: "#ef4444" }
+        };
+
+        function initChart() {
+            const ctx = document.getElementById('complexityChart').getContext('2d');
+            complexityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues,
+                    datasets: Object.keys(bigOCurves).map(key => ({
+                        label: bigOCurves[key].label,
+                        data: bigOCurves[key].data,
+                        borderColor: bigOCurves[key].color,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3,
+                        borderDash: [5, 5]
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true, position: 'bottom' } },
+                    scales: { y: { min: 0, max: 120 } }
+                }
+            });
+        }
+
+        function highlightCurve(target) {
+            if (!complexityChart) return;
+            complexityChart.data.datasets.forEach((ds, idx) => {
+                const label = Object.keys(bigOCurves)[idx];
+                if (label === target) {
+                    ds.borderWidth = 6;
+                    ds.borderDash = [];
+                } else {
+                    ds.borderWidth = 1;
+                    ds.borderDash = [5, 5];
+                }
+            });
+            complexityChart.update();
+        }
+
+        // --- 3. UI CONTROLLER ---
+        function goHome() {
+            document.getElementById('intro-view').classList.remove('hidden');
+            document.getElementById('algorithm-view').classList.add('hidden');
+            document.getElementById('ds-view').classList.add('hidden');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('mobile-menu').classList.add('hidden');
+            document.getElementById('main-scroll-area').scrollTo(0, 0);
+        }
+
+        function selectAlgorithm(id) {
+            const algo = algorithms.find(a => a.id === id);
+            if (!algo) return;
+
+            document.getElementById('intro-view').classList.add('hidden');
+            document.getElementById('ds-view').classList.add('hidden');
+            document.getElementById('algorithm-view').classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll(`[data-nav-id="${id}"]`).forEach(el => el.classList.add('active'));
+
+            document.getElementById('algo-name').innerText = algo.name;
+            document.getElementById('algo-desc').innerText = algo.desc;
+            document.getElementById('algo-time-avg').innerText = algo.timeAvg;
+            document.getElementById('algo-space').innerText = algo.space;
+            document.getElementById('algo-ds').innerText = algo.ds;
+            document.getElementById('algo-video').href = algo.video;
+            document.getElementById('algo-code').innerText = algo.code;
+
+            document.getElementById('algo-ds-link-btn').onclick = (e) => {
+                e.preventDefault();
+                selectDS(algo.dsId);
+            };
+
+            highlightCurve(algo.timeClass);
+            document.getElementById('mobile-menu').classList.add('hidden');
+            document.getElementById('main-scroll-area').scrollTo(0, 0);
+        }
+
+        function selectDS(id) {
+            const ds = structures.find(s => s.id === id);
+            if (!ds) return;
+
+            document.getElementById('intro-view').classList.add('hidden');
+            document.getElementById('algorithm-view').classList.add('hidden');
+            document.getElementById('ds-view').classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll(`[data-nav-id="${id}"]`).forEach(el => el.classList.add('active'));
+
+            document.getElementById('ds-name').innerText = ds.name;
+            document.getElementById('ds-desc').innerText = ds.desc;
+            document.getElementById('ds-video').href = ds.video;
+            document.getElementById('ds-code').innerText = ds.code;
+
+            const body = document.getElementById('ds-complexity-table');
+            body.innerHTML = '';
+            
+            const ops = [
+                { label: 'Access (by index)', key: 'access' },
+                { label: 'Search (by value)', key: 'search' },
+                { label: 'Insertion', key: 'insert' },
+                { label: 'Deletion', key: 'delete' }
+            ];
+
+            ops.forEach(op => {
+                const [val, level] = ds.ops[op.key];
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-stone-100 last:border-0 hover:bg-stone-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-stone-700">${op.label}</td>
+                    <td class="p-4"><span class="complexity-badge bg-${level}">${val}</span></td>
+                    <td class="p-4"><span class="complexity-badge bg-poor">${val === 'O(1)' ? 'O(1)' : 'O(n)'}</span></td>
+                `;
+                body.appendChild(tr);
+            });
+
+            document.getElementById('mobile-menu').classList.add('hidden');
+            document.getElementById('main-scroll-area').scrollTo(0, 0);
+        }
+
+        function renderNav() {
+            const groups = {
+                "Sorting": algorithms.filter(a => a.category === "Sorting"),
+                "Searching": algorithms.filter(a => a.category === "Searching"),
+                "Graphs": algorithms.filter(a => a.category === "Graphs"),
+                "Data Structures": structures
+            };
+
+            let html = '';
+            for (const [title, items] of Object.entries(groups)) {
+                html += `<div class="mb-6"><h4 class="text-[10px] font-bold text-stone-400 uppercase tracking-widest px-3 mb-2">${title}</h4><ul class="space-y-1">`;
+                items.forEach(item => {
+                    const func = title === "Data Structures" ? `selectDS('${item.id}')` : `selectAlgorithm('${item.id}')`;
+                    html += `<li><button onclick="${func}" data-nav-id="${item.id}" class="nav-item w-full text-left px-3 py-2 rounded-lg text-sm text-stone-600 hover:bg-stone-200 transition-all">${item.name}</button></li>`;
+                });
+                html += `</ul></div>`;
+            }
+
+            document.getElementById('nav-container').innerHTML = html;
+            document.getElementById('mobile-nav-container').innerHTML = html;
+        }
+
+        function scrollToNav(category) {
+            if (category === 'Sorting') selectAlgorithm('merge-sort');
+            else if (category === 'Data Structures') selectDS('array');
+        }
+
+        window.onload = () => {
+            renderNav();
+            initChart();
+            document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+        };
+    </script>
+</body>
+</html>
