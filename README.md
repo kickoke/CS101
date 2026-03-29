@@ -2,4 +2,5 @@
 
 Hosts resources to learn computer science and prepare for interviews.
 
-yes... it's vibe coded...
+Practice problems:
+* 1-1: Merge sort
