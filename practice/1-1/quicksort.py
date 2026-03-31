@@ -11,22 +11,44 @@ Approach:
 to_sort_unique = "asdfghjklzxcvbnm"
 to_sort_not_unique = "asdfghjklzxcvghjki"
 
-def quicksort(to_sort: str) -> list:
+def quicksort(input: str) -> list:
+  # Convert str into list
+  to_sort = list(input)
+  sorted = []
   # Base case: already sorted
   if len(to_sort) == 1:
-    to_sort = sorted
+    sorted = to_sort
     return sorted
-  
+  # Create pivot point and store value
   pivot_index = int(len(to_sort)/2)
   pivot_value = to_sort[pivot_index]
+  # Split halves
   to_sort_left = to_sort[:pivot_index]
   to_sort_right = to_sort[pivot_index+1:]
-  left =[]
-  right =[]
 
+  sorted_left = []
+  sorted_right = []
+  
   while to_sort_left:
-    if 
+    if to_sort_left[0] < pivot_value:
+      sorted_left.append(to_sort_left[0])
+      to_sort_left.pop(0)
+    else:
+      sorted_right.append(to_sort_left[0])
+      to_sort_left.pop(0)
+  
+  while to_sort_right:
+    if to_sort_right[0] < pivot_value:
+      sorted_left.append(to_sort_left[0])
+      to_sort_left.pop(0)
+    else:
+      sorted_right.append(to_sort_left[0])
+      to_sort_left.pop(0)
+    
 
+  sorted = quicksort(left)+[pivot_value]+quicksort(right)
+  return sorted
+  
 
 def is_unique(sorted):
     for i in range(0, (len(sorted)-1)):
