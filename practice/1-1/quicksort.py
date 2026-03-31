@@ -39,14 +39,14 @@ def quicksort(input: str) -> list:
   
   while to_sort_right:
     if to_sort_right[0] < pivot_value:
-      sorted_left.append(to_sort_left[0])
-      to_sort_left.pop(0)
+      sorted_left.append(to_sort_right[0])
+      to_sort_right.pop(0)
     else:
-      sorted_right.append(to_sort_left[0])
-      to_sort_left.pop(0)
+      sorted_right.append(to_sort_right[0])
+      to_sort_right.pop(0)
     
 
-  sorted = quicksort(left)+[pivot_value]+quicksort(right)
+  sorted = quicksort(sorted_left)+[pivot_value]+quicksort(sorted_right)
   return sorted
   
 

@@ -15,7 +15,7 @@ def mergesort(to_sort: str)-> list:
     to_sort_chars = list(to_sort)
     # Base case: Only 1 character
     if len(to_sort_chars) == 1:
-        sorted = to_sort
+        sorted = to_sort_chars
         return sorted
     
     # Split into half
