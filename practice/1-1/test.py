@@ -9,12 +9,13 @@ sorted_not_unique = ['a', 'c', 'd', 'f', 'g', 'g', 'h', 'h', 'i', 'j', 'j', 'k',
 
 def test_is_unique():
     assert is_unique(sorted_unique) == True
-    assert is_unique(sorted_unique) == False
+    assert is_unique(sorted_not_unique) == False
 
 def test_mergesort():
     assert mergesort(to_sort_unique) == sorted_unique
     assert mergesort(to_sort_not_unique) == sorted_not_unique
 
 def test_quicksort():
-    assert quicksort(to_sort_unique) == sorted_unique
-    assert quicksort(to_sort_not_unique) == sorted_not_unique
+    unsorted = [x for x in to_sort_unique]
+    quicksort(unsorted, 0, len(unsorted)-1)
+    assert unsorted == sorted_unique

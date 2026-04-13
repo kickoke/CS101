@@ -11,7 +11,7 @@ Approach:
 to_sort_unique = "asdfghjklzxcvbnm"
 to_sort_not_unique = "asdfghjklzxcvghjki"
 
-def mergesort(to_sort: str)-> list:
+def mergesort(to_sort: list |str)-> list:
     to_sort_chars = list(to_sort)
     # Base case: Only 1 character
     if len(to_sort_chars) == 1:
@@ -48,9 +48,9 @@ def merge(left: list, right: list) -> list:
 
     return sorted
 
-def is_unique(sorted):
-    for i in range(0, (len(sorted)-1)):
-        if sorted[i] == sorted[i+1]:
+def is_unique(arr):
+    for i in range(0, (len(arr)-1)):
+        if arr[i] == arr[i+1]:
             return False
     return True
 
