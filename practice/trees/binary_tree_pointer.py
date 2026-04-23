@@ -52,55 +52,56 @@ class Tree:
     def lookup(self, key):
         return self._lookup(self.root_node, key)
 
-    def _delete(self, node, key): ...
-
-    def delete(self, key):
-        """Check empty tree"""
-        if self.root_node == None:
-            raise KeyError("No entries in tree.")
+    def _delete(self, node, key):
         """Delete root node"""
-        elif key == self.root_node.key:
-            old_root = self.root_node
+        if key == node.key:
+            old_root = node
             self.root_node = None
             self._insert_tree(old_root.left)
             self._insert_tree(old_root.right)
 
         """Delete node with one child (left)"""
-        elif key < self.root_node.key:
-            if key == self.root_node.left.key:
-                if self.root_node.left.has_only_left():
-                    self.root_node.left = self.root_node.left.left
-                elif self.root_node.left.has_only_right():
-                    self.root_node.left = self.root_node.left.right
-                elif self.root_node.left.has_two_childen():
-                    temp_tree = self.root_node.left.left
-                    self.root_node.left = self.root_node.left.right
+        if key < node.key:
+            if key == node.left.key:
+                if node.left.has_only_left():
+                    node.left = node.left.left
+                elif node.left.has_only_right():
+                    node.left = node.left.right
+                elif node.left.has_two_childen():
+                    temp_tree = node.left.left
+                    node.left = node.left.right
                     self._insert_tree(temp_tree)
                 else:
                     # Leaf node deletion
-                    self.root_node.left = None
+                    node.left = None
                     return
             else:
                 # Recurse down until match
-                return self._delete(self.root_node.left, key)
+                return self._delete(node.left, key)
 
-        else: # key > self.node_root.key
-            if key == self.root_node.right.key:
-                if self.root_node.right.has_only_left():
-                    self.root_node.right = self.root_node.right.left
-                elif self.root_node.right.has_only_right():
-                    self.root_node.right = self.root_node.right.right
-                elif self.root_node.right.has_two_childen():
-                    temp_tree = self.root_node.right.left
-                    self.root_node.right = self.root_node.right.right
+        else:  # key > self.node_root.key
+            if key == node.right.key:
+                if node.right.has_only_left():
+                    node.right = node.right.left
+                elif node.right.has_only_right():
+                    node.right = node.right.right
+                elif node.right.has_two_childen():
+                    temp_tree = node.right.left
+                    node.right = node.right.right
                     self._insert_tree(temp_tree)
                 else:
                     # Leaf node deletion
-                    self.root_node.right = None
+                    node.right = None
                     return
             else:
                 # Recurse down until match
-                return self._delete(self.root_node.right, key)
+                return self._delete(node.right, key)
+
+    def delete(self, key):
+        """Check empty tree"""
+        if self.root_node == None:
+            raise KeyError("No entries in tree.")
+        return self._delete(self.root_node, key)
 
     def _insert_tree(self, node):
         if node == None:
