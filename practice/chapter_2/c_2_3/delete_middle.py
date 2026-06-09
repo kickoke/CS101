@@ -19,9 +19,6 @@ have access to the 9 node. Can you make it look like the correct answer?
 
 
 class Node:
-    """
-    Node class that supports doubly linked lists.
-    """
 
     def __init__(self, data, next=None):
         self.data = data
